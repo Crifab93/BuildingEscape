@@ -38,7 +38,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void UOpenDoor::OpenDoor() {
 	AActor* Owner = GetOwner();
-	FRotator NewRotator = FRotator(0.0f, -60.0f, 0.0f);
+	FRotator NewRotator = FRotator(0.0f, -90.0f, 0.0f);
 	Owner->SetActorRotation(NewRotator);
 }
 
