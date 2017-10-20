@@ -3,6 +3,7 @@
 #include "ItemGrabber.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
+#include "Public/DrawDebugHelpers.h"
 
 //does nothing, just to annotate that some parameters are changed as output ("getted" in this way)
 #define OUT		
@@ -34,15 +35,29 @@ void UItemGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FVector PlayerViewPointLocation;
-	FRotator PlayerViewPointRotation;
-
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
 
-	LogViewPoint(PlayerViewPointLocation, PlayerViewPointRotation);
+	//TEST
+	//LogViewPoint(PlayerViewPointLocation, PlayerViewPointRotation);
+
+	VisualizePlayerView();
 }
 
-void UItemGrabber::LogViewPoint(FVector PlayerViewPointLocation, FRotator PlayerViewPointRotation) {
+void UItemGrabber::VisualizePlayerView() {
+
+	FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector()*Reach);
+	//Draw a red trace in the world to visualise
+	DrawDebugLine(	GetWorld(),						//the world
+					PlayerViewPointLocation,		//starting point	
+					LineTraceEnd,					//line end
+					FColor(255, 0, 0),				//colour
+					false,							//is persistent?
+					0.0f,							//life time 
+					0.0f,							//depth priority		
+					10.0f);							//thickness											
+}
+
+void UItemGrabber::LogViewPoint() {
 	UE_LOG(LogTemp, Warning, TEXT("Location : %s, Rotation : %s"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString())
 }
 
