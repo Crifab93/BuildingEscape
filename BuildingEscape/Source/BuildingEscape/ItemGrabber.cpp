@@ -46,7 +46,7 @@ void UItemGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 void UItemGrabber::VisualizePlayerView() {
 
 	FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector()*Reach);
-	//Draw a red trace in the world to visualise
+	/// Draw a red trace in the world to visualise
 	DrawDebugLine(	GetWorld(),						//the world
 					PlayerViewPointLocation,		//starting point	
 					LineTraceEnd,					//line end
@@ -54,7 +54,27 @@ void UItemGrabber::VisualizePlayerView() {
 					false,							//is persistent?
 					0.0f,							//life time 
 					0.0f,							//depth priority		
-					10.0f);							//thickness											
+					10.0f);							//thickness	
+
+	/// Setup query parameters
+	FCollisionObjectQueryParams ObjectQuery(ECollisionChannel::ECC_PhysicsBody);
+	FCollisionQueryParams TraceParameters(FName(TEXT("")), true, GetOwner());
+
+	/// Line-trace (AKA ray-cast) out to reach the distance
+	FHitResult Hit;
+	bool HasHit = false;
+	HasHit = GetWorld()->LineTraceSingleByObjectType(
+		OUT Hit,									//Out-hit
+		PlayerViewPointLocation,					//Start
+		LineTraceEnd,								//End
+		ObjectQuery,								//Object Query Params
+		TraceParameters								//Collision Query Params
+	);
+
+	/// Log Hit
+	if (HasHit) {
+		UE_LOG(LogTemp, Warning, TEXT("Raycasted %s"), *(Hit.Actor->GetName()));
+	}
 }
 
 void UItemGrabber::LogViewPoint() {
