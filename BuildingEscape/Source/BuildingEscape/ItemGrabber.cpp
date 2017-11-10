@@ -25,8 +25,11 @@ void UItemGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	/// Look for attached Physics Handle
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (!PhysicsHandle) {
+		UE_LOG(LogTemp, Error, TEXT("The object %s doesn't have a Physic Handle COmponent attached to it!"), *GetOwner()->GetName());
+	}
 }
 
 
