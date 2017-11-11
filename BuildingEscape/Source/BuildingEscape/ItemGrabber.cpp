@@ -4,6 +4,7 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Public/DrawDebugHelpers.h"
+#include "Components/PrimitiveComponent.h"
 
 //does nothing, just to annotate that some parameters are changed as output ("getted" in this way)
 #define OUT		
@@ -33,7 +34,12 @@ void UItemGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	/// if the physics handle is attached
+	if (PhysicsHandle->GrabbedComponent) {
 		/// move the object that we're holding
+		CalculateLineTraceEnd();
+		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+	}
+
 
 	
 
@@ -85,8 +91,7 @@ void UItemGrabber::LogViewPoint() {
 }
 
 const FHitResult UItemGrabber::GetFirstPhysicsBodyInReach() {
-	FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector()*Reach);
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
+	CalculateLineTraceEnd();
 	/// Setup query parameters
 	FCollisionObjectQueryParams ObjectQuery(ECollisionChannel::ECC_PhysicsBody);
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
@@ -106,20 +111,33 @@ const FHitResult UItemGrabber::GetFirstPhysicsBodyInReach() {
 	if (HasHit) {
 		UE_LOG(LogTemp, Warning, TEXT("Raycasted %s"), *(Hit.Actor->GetName()));
 	}
-	return FHitResult();
+	return Hit;
+}
+
+void UItemGrabber::CalculateLineTraceEnd() {
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
+	LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector()*Reach);
 }
 
 void UItemGrabber::Grab() {
 	UE_LOG(LogTemp, Warning, TEXT("Grab key pressed."))
 
-		/// LINE-TRACE and see if we reach any actors with physics body collision channel set
-		GetFirstPhysicsBodyInReach();
+	/// LINE-TRACE and see if we reach any actors with physics body collision channel set
+	auto HitResult = GetFirstPhysicsBodyInReach();
+	auto ComponentToGrab = HitResult.GetComponent();
+	auto ActorHit = HitResult.GetActor();
 
-		/// If we hit something then attach a physic handle
-		///TODO attach pysics handle
+	/// If we hit something then attach a physic handle
+	if (ActorHit) {
+		PhysicsHandle->GrabComponent(	ComponentToGrab,														//Primitive Component
+										NAME_None,																//Bone Name
+										ComponentToGrab->GetOwner()->GetActorLocation(),						//Grab Location
+										true);																	//Allow Rotation?
+	}
+	
 }
 
 void UItemGrabber::Release() {
 	UE_LOG(LogTemp, Warning, TEXT("Item released."))
-		///TODO release physics handle
+	PhysicsHandle->ReleaseComponent();
 }

@@ -35,6 +35,7 @@ protected:
 private:
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
+	FVector LineTraceEnd;
 	//how far ahead of the player can we reach in cm
 	float Reach = 100.0f;
 
@@ -43,6 +44,8 @@ private:
 
 	// Return hit for the first physics body in reach
 	const FHitResult GetFirstPhysicsBodyInReach();
+
+	void CalculateLineTraceEnd();
 
 	//Ray-cast and grab what's in reach
 	void Grab();
