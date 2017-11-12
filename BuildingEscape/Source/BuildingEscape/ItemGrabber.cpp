@@ -40,9 +40,6 @@ void UItemGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 		PhysicsHandle->SetTargetLocation(LineTraceEnd);
 	}
 
-
-	
-
 }
 
 // Look for attached Physics Handle Component
@@ -57,7 +54,6 @@ void UItemGrabber::FindPhysicsHandleComponent() {
 void UItemGrabber::SetupInputComponent() {
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (InputComponent) {
-		UE_LOG(LogTemp, Warning, TEXT("Input component found!"));
 		/// Bind the grab action
 		InputComponent->BindAction("Grab",					//ActionName
 			IE_Pressed,				//KeyEvent
@@ -83,11 +79,6 @@ void UItemGrabber::VisualizePlayerView() {
 					0.0f,							//life time 
 					0.0f,							//depth priority		
 					10.0f);							//thickness	
-
-}
-
-void UItemGrabber::LogViewPoint() {
-	UE_LOG(LogTemp, Warning, TEXT("Location : %s, Rotation : %s"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString())
 }
 
 const FHitResult UItemGrabber::GetFirstPhysicsBodyInReach() {
@@ -107,10 +98,6 @@ const FHitResult UItemGrabber::GetFirstPhysicsBodyInReach() {
 		TraceParameters								//Collision Query Params
 	);
 
-	/// Log Hit
-	if (HasHit) {
-		UE_LOG(LogTemp, Warning, TEXT("Raycasted %s"), *(Hit.Actor->GetName()));
-	}
 	return Hit;
 }
 
@@ -120,8 +107,6 @@ void UItemGrabber::CalculateLineTraceEnd() {
 }
 
 void UItemGrabber::Grab() {
-	UE_LOG(LogTemp, Warning, TEXT("Grab key pressed."))
-
 	/// LINE-TRACE and see if we reach any actors with physics body collision channel set
 	auto HitResult = GetFirstPhysicsBodyInReach();
 	auto ComponentToGrab = HitResult.GetComponent();
@@ -133,11 +118,9 @@ void UItemGrabber::Grab() {
 										NAME_None,																//Bone Name
 										ComponentToGrab->GetOwner()->GetActorLocation(),						//Grab Location
 										true);																	//Allow Rotation?
-	}
-	
+	}	
 }
 
 void UItemGrabber::Release() {
-	UE_LOG(LogTemp, Warning, TEXT("Item released."))
 	PhysicsHandle->ReleaseComponent();
 }
